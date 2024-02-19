@@ -21,10 +21,12 @@ const UpdateProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const getProducts = async (url) => {
+    const currentToken = localStorage.getItem("sellerToken");
+    if (!currentToken) return;
     dispatch({ type: "SET_LOADING" });
     try {
       const res = await axios.get(url, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${currentToken}` },
       });
       const products = await res.data;
 
@@ -34,10 +36,12 @@ const UpdateProvider = ({ children }) => {
     }
   };
   const getSingleProduct = async (url) => {
+    const currentToken = localStorage.getItem("sellerToken");
+    if (!currentToken) return;
     dispatch({ type: "SET_SINGLE_LOADING" });
     try {
       const res = await axios.get(url, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${currentToken}` },
       });
       const singleProduct = await res.data;
 
@@ -48,7 +52,10 @@ const UpdateProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    getProducts(API);
+    const currentToken = localStorage.getItem("sellerToken");
+    if (currentToken) {
+      getProducts(API);
+    }
   }, []);
 
   return (

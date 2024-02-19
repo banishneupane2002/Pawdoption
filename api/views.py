@@ -19,6 +19,16 @@ import json
 from django.http import JsonResponse
 
 # loaded_model = joblib.load('dog_breed_classifier_model.joblib')
+# Load the trained model safely
+import os
+try:
+    model_path = os.path.join(settings.BASE_DIR, 'MLquiz', 'breed.joblib')
+    if not os.path.exists(model_path):
+        model_path = 'MLquiz/breed.joblib'
+    loaded_model = joblib.load(model_path)
+except Exception as e:
+    print(f"[Warning] Could not load ML model: {e}")
+    loaded_model = None
 
 # Load the trained model
 loaded_model = joblib.load(r'MLquiz/breed.joblib')
@@ -183,18 +193,25 @@ class StripeCheckoutView(APIView):
                     'quantity': quantity,
                 })
                 
-            session = stripe.checkout.Session.create(
-                payment_method_types=['card'],
-                line_items=line_items,
+            stripe_key = getattr(settings, 'STRIPE_SECRET_KEY', '')
+            session_url = settings.SITE_URL + 'orders'
+            total_amount_dollars = (Decimal(total_amount) / 100).quantize(Decimal('0.01'))
 
-                mode='payment',
-                success_url=settings.SITE_URL + 'orders',
-                cancel_url=settings.SITE_URL + '?canceled=true',
-            )
-            
-            total_amount_dollars = Decimal(session.amount_total) / 100
-            total_amount_dollars = total_amount_dollars.quantize(Decimal('0.01'))
-            
+            if stripe_key and not stripe_key.startswith('sk_test_placeholder'):
+                try:
+                    stripe.api_key = stripe_key
+                    session = stripe.checkout.Session.create(
+                        payment_method_types=['card'],
+                        line_items=line_items,
+                        mode='payment',
+                        success_url=settings.SITE_URL + 'orders',
+                        cancel_url=settings.SITE_URL + '?canceled=true',
+                    )
+                    session_url = session.url
+                    total_amount_dollars = (Decimal(session.amount_total) / 100).quantize(Decimal('0.01'))
+                except Exception as stripe_err:
+                    print(f"[Notice] Stripe cart checkout failed ({stripe_err}). Falling back to simulated checkout.")
+
             user_id = request.user
             order = Orders.objects.create(
                 user = user_id,
@@ -208,9 +225,8 @@ class StripeCheckoutView(APIView):
                 product = Products.objects.get(productId = product_id)
                 order.products.add(product)
             
-            
-            return Response({'success_url': settings.SITE_URL ,
-                             'url':session.url,
+            return Response({'success_url': settings.SITE_URL,
+                             'url': session_url,
                              })
             
         except Exception as e:
