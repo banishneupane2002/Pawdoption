@@ -23,6 +23,7 @@
 </div>
 
 ## 📌 Table of Contents
+- [User Interface Preview](#-user-interface-preview)
 - [Executive Overview](#-executive-overview)
 - [System Architecture](#-system-architecture)
 - [Key Engineering Modules](#-key-engineering-modules)
@@ -32,6 +33,27 @@
 - [Engineering Team & Roles](#-engineering-team--roles)
 - [Getting Started & Local Deployment](#-getting-started--local-deployment)
 - [Security & Environment Standards](#-security--environment-standards)
+
+---
+
+## 📸 User Interface Preview
+
+<div align="center">
+
+### 🏠 Landing Page & Hero Section
+![Pawdoption Home Preview](docs/screenshots/home.png)
+
+<br/>
+
+| 🐶 Pet Adoption Directory | 🧠 Machine Learning Breed Quiz |
+| :---: | :---: |
+| ![Adopt Pets](docs/screenshots/adopt.png) | ![Breed Quiz](docs/screenshots/quiz.png) |
+
+| 🛍️ Pet Supplies & Care Store | 📊 Supervised Decision Tree Model |
+| :---: | :---: |
+| ![Store Marketplace](docs/screenshots/store.png) | ![ML Decision Tree](MLquiz/breed.png) |
+
+</div>
 
 ---
 
